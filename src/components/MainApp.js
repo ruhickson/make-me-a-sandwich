@@ -7,6 +7,7 @@ import ShoppingListScreen from './screens/ShoppingListScreen';
 import CalendarScreen from './screens/CalendarScreen';
 import AccountScreen from './screens/AccountScreen';
 import SettingsScreen from './screens/SettingsScreen';
+import RecipeDatabase from './RecipeDatabase';
 
 const MainApp = ({ userProfile, onLogout }) => {
   const [currentScreen, setCurrentScreen] = useState('welcome');
@@ -16,6 +17,7 @@ const MainApp = ({ userProfile, onLogout }) => {
     questionnaire: <QuestionnaireScreen onComplete={() => setCurrentScreen('meal-plan')} />,
     'meal-plan': <MealPlanScreen onViewShopping={() => setCurrentScreen('shopping-list')} />,
     'shopping-list': <ShoppingListScreen onBack={() => setCurrentScreen('meal-plan')} />,
+    'recipe-database': <RecipeDatabase />,
     calendar: <CalendarScreen />,
     account: <AccountScreen userProfile={userProfile} onLogout={onLogout} />,
     settings: <SettingsScreen />

@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Make Me A Sandwich - Meal Planner</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div id="app">
+        <!-- Login Screen -->
+        <div id="login-screen" class="screen active">
+            <div class="container">
+                <div class="login-card">
+                    <div class="login-header">
+                        <span class="logo-icon">🥪</span>
+                        <h1>Make Me A Sandwich</h1>
+                        <p class="subtitle">Your personalized meal planning assistant</p>
+                    </div>
+                    
+                    <div id="welcome-back-section" class="login-section" style="display: none;">
+                        <h2>Welcome Back!</h2>
+                        <p>We found your previous meal plan data. Would you like to continue where you left off?</p>
+                        <div class="user-info">
+                            <div class="user-avatar">
+                                <img id="welcome-avatar" src="" alt="Profile Picture">
+                            </div>
+                            <div class="user-details">
+                                <h3 id="welcome-name">User Name</h3>
+                                <p id="welcome-email">user@email.com</p>
+                            </div>
+                        </div>
+                        <div class="login-actions">
+                            <button id="continue-btn" class="btn btn-primary">Continue with Existing Plan</button>
+                            <button id="new-plan-btn" class="btn btn-secondary">Start Fresh</button>
+                            <button id="logout-btn" class="btn btn-text">Sign Out</button>
+                        </div>
+                    </div>
+                    
+                    <div id="new-user-section" class="login-section">
+                        <h2>Get Started</h2>
+                        <p>Create your personalized meal plan in just a few minutes</p>
+                        
+                        <div class="login-options">
+                            <button id="google-signin-btn" class="btn btn-google">
+                                <span class="google-icon">🔍</span>
+                                Sign in with Google
+                            </button>
+                            
+                            <div class="divider">
+                                <span>or</span>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="login-email">Email</label>
+                                <input type="email" id="login-email" placeholder="your@email.com">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="login-password">Password</label>
+                                <input type="password" id="login-password" placeholder="Enter your password">
+                            </div>
+                            
+                            <button id="email-signin-btn" class="btn btn-primary">Sign In</button>
+                            
+                            <div class="guest-option">
+                                <p>Or continue as a guest</p>
+                                <button id="guest-btn" class="btn btn-secondary">Continue as Guest</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main App (Hidden until login) -->
+        <div id="main-app" style="display: none;">
+            <!-- Menu Bar -->
+            <nav class="menu-bar">
+                <div class="menu-container">
+                    <div class="menu-logo">
+                        <span class="logo-icon">🥪</span>
+                        <span class="logo-text">Make Me A Sandwich</span>
+                    </div>
+                    <div class="menu-items">
+                        <button class="menu-item" data-screen="welcome-screen">Home</button>
+                        <button class="menu-item" data-screen="questionnaire-screen">New Plan</button>
+                        <button class="menu-item" data-screen="meal-plan-screen">Meal Plan</button>
+                        <button class="menu-item" data-screen="shopping-list-screen">Shopping</button>
+                        <button class="menu-item" data-screen="calendar-screen">Calendar</button>
+                        <button class="menu-item" data-screen="account-screen">Account</button>
+                        <button class="menu-item" data-screen="settings-screen">Settings</button>
+                    </div>
+                </div>
+            </nav>
+
+            <!-- Welcome Screen -->
+            <div id="welcome-screen" class="screen active">
+                <div class="container">
+                    <h1>🥪 Make Me A Sandwich</h1>
+                    <p class="subtitle">Your personalized meal planning assistant</p>
+                    <button id="start-btn" class="btn btn-primary">Get Started</button>
+                </div>
+            </div>
+
+            <!-- Questionnaire Screen -->
+            <div id="questionnaire-screen" class="screen">
+                <div class="container">
+                    <h2>Let's Get to Know You</h2>
+                    
+                    <!-- Progress Bar -->
+                    <div class="progress-container">
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="progress-fill"></div>
+                        </div>
+                        <span class="progress-text" id="progress-text">1 of 4</span>
+                    </div>
+
+                    <!-- Questionnaire Pages -->
+                    <div class="questionnaire-pages">
+                        <!-- Page 1: Basic Information -->
+                        <div class="questionnaire-page active" data-page="1">
+                            <h3>Basic Information</h3>
+                            <div class="form-group">
+                                <label for="age">Age</label>
+                                <input type="number" id="age" name="age" required min="13" max="120">
+                            </div>
+                            <div class="form-group">
+                                <label for="height">Height (cm)</label>
+                                <input type="number" id="height" name="height" required min="100" max="250">
+                            </div>
+                            <div class="form-group">
+                                <label for="weight">Weight (kg)</label>
+                                <input type="number" id="weight" name="weight" required min="30" max="200">
+                            </div>
+                        </div>
+
+                        <!-- Page 2: Goals & Preferences -->
+                        <div class="questionnaire-page" data-page="2">
+                            <h3>Goals & Preferences</h3>
+                            <div class="form-group">
+                                <label for="goal">Primary Goal</label>
+                                <select id="goal" name="goal" required>
+                                    <option value="">Select a goal</option>
+                                    <option value="weight-loss">Weight Loss</option>
+                                    <option value="maintenance">Maintenance</option>
+                                    <option value="muscle-gain">Muscle Gain</option>
+                                    <option value="healthy-eating">Healthy Eating</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Dietary Preferences</label>
+                                <div class="checkbox-group">
+                                    <label><input type="checkbox" name="dietary" value="vegetarian"> Vegetarian</label>
+                                    <label><input type="checkbox" name="dietary" value="vegan"> Vegan</label>
+                                    <label><input type="checkbox" name="dietary" value="gluten-free"> Gluten Free</label>
+                                    <label><input type="checkbox" name="dietary" value="dairy-free"> Dairy Free</label>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="allergies">Allergies/Intolerances</label>
+                                <textarea id="allergies" name="allergies" placeholder="e.g., nuts, shellfish, soy..."></textarea>
+                            </div>
+                        </div>
+
+                        <!-- Page 3: Cooking Equipment -->
+                        <div class="questionnaire-page" data-page="3">
+                            <h3>Cooking Equipment</h3>
+                            <div class="checkbox-group">
+                                <label><input type="checkbox" name="equipment" value="oven" checked> Oven</label>
+                                <label><input type="checkbox" name="equipment" value="hob" checked> Hob/Stovetop</label>
+                                <label><input type="checkbox" name="equipment" value="microwave" checked> Microwave</label>
+                                <label><input type="checkbox" name="equipment" value="air-fryer"> Air Fryer</label>
+                                <label><input type="checkbox" name="equipment" value="slow-cooker"> Slow Cooker</label>
+                                <label><input type="checkbox" name="equipment" value="blender"> Blender</label>
+                            </div>
+                        </div>
+
+                        <!-- Page 4: Cooking Schedule -->
+                        <div class="questionnaire-page" data-page="4">
+                            <h3>Cooking Schedule</h3>
+                            <p>Select two days for meal prep (ideally spaced out):</p>
+                            <div class="checkbox-group">
+                                <label><input type="checkbox" name="cooking-days" value="monday"> Monday</label>
+                                <label><input type="checkbox" name="cooking-days" value="tuesday"> Tuesday</label>
+                                <label><input type="checkbox" name="cooking-days" value="wednesday"> Wednesday</label>
+                                <label><input type="checkbox" name="cooking-days" value="thursday"> Thursday</label>
+                                <label><input type="checkbox" name="cooking-days" value="friday"> Friday</label>
+                                <label><input type="checkbox" name="cooking-days" value="saturday"> Saturday</label>
+                                <label><input type="checkbox" name="cooking-days" value="sunday"> Sunday</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Navigation Buttons -->
+                    <div class="questionnaire-nav">
+                        <button id="prev-btn" class="btn btn-secondary nav-btn" disabled>← Previous</button>
+                        <button id="next-btn" class="btn btn-primary nav-btn">Next →</button>
+                        <button id="submit-btn" class="btn btn-primary nav-btn" style="display: none;">Generate Meal Plan</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Meal Plan Screen -->
+            <div id="meal-plan-screen" class="screen">
+                <div class="container">
+                    <h2>Your Personalized Meal Plan</h2>
+                    <div id="meal-plan-content">
+                        <!-- Meal plan will be generated here -->
+                    </div>
+                    
+                    <div class="meal-plan-actions">
+                        <button id="shopping-list-btn" class="btn btn-secondary">View Shopping List</button>
+                        <button id="new-plan-btn" class="btn btn-primary">Create New Plan</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Shopping List Screen -->
+            <div id="shopping-list-screen" class="screen">
+                <div class="container">
+                    <h2>Shopping List</h2>
+                    <div id="shopping-list-content">
+                        <!-- Shopping list will be generated here -->
+                    </div>
+                    <div class="shopping-actions">
+                        <button id="search-supermarket-btn" class="btn btn-primary">Search at Supermarket</button>
+                        <button id="back-to-meal-plan-btn" class="btn btn-secondary">Back to Meal Plan</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Calendar Screen -->
+            <div id="calendar-screen" class="screen">
+                <div class="container">
+                    <h2>📅 Calendar Reminders</h2>
+                    <p class="section-description">Create calendar reminders for your cooking and eating schedule</p>
+                    
+                    <div class="calendar-section">
+                        <div class="reminder-options">
+                            <div class="reminder-option">
+                                <label>
+                                    <input type="checkbox" id="cooking-reminders" checked>
+                                    <span class="checkmark"></span>
+                                    Cooking Reminders
+                                </label>
+                                <p class="reminder-desc">Get notified when it's time to start cooking</p>
+                            </div>
+                            
+                            <div class="reminder-option">
+                                <label>
+                                    <input type="checkbox" id="eating-reminders" checked>
+                                    <span class="checkmark"></span>
+                                    Eating Reminders
+                                </label>
+                                <p class="reminder-desc">Get notified when it's time to eat</p>
+                            </div>
+                            
+                            <div class="reminder-option">
+                                <label>
+                                    <input type="checkbox" id="shopping-reminders">
+                                    <span class="checkmark"></span>
+                                    Shopping Reminders
+                                </label>
+                                <p class="reminder-desc">Get notified to buy ingredients</p>
+                            </div>
+                        </div>
+                        
+                        <div class="reminder-times">
+                            <div class="time-group">
+                                <label for="breakfast-time">Breakfast Time:</label>
+                                <input type="time" id="breakfast-time" value="08:00">
+                            </div>
+                            <div class="time-group">
+                                <label for="lunch-time">Lunch Time:</label>
+                                <input type="time" id="lunch-time" value="12:30">
+                            </div>
+                            <div class="time-group">
+                                <label for="dinner-time">Dinner Time:</label>
+                                <input type="time" id="dinner-time" value="19:00">
+                            </div>
+                        </div>
+                        
+                        <div class="calendar-actions">
+                            <button id="create-calendar-btn" class="btn btn-primary">
+                                📅 Create Calendar Reminders
+                            </button>
+                            <button id="download-ics-btn" class="btn btn-secondary">
+                                📥 Download .ics File
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Account Screen -->
+            <div id="account-screen" class="screen">
+                <div class="container">
+                    <h2>👤 Account</h2>
+                    
+                    <div id="login-section" class="account-section">
+                        <h3>Sign In</h3>
+                        <p class="section-description">Sign in to sync your meal plans across devices</p>
+                        
+                        <div class="login-options">
+                            <button id="google-signin-btn" class="btn btn-google">
+                                <span class="google-icon">🔍</span>
+                                Sign in with Google
+                            </button>
+                            
+                            <div class="divider">
+                                <span>or</span>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="email">Email</label>
+                                <input type="email" id="email" placeholder="your@email.com">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="password">Password</label>
+                                <input type="password" id="password" placeholder="Enter your password">
+                            </div>
+                            
+                            <button id="email-signin-btn" class="btn btn-primary">Sign In</button>
+                        </div>
+                    </div>
+                    
+                    <div id="profile-section" class="account-section" style="display: none;">
+                        <h3>Profile</h3>
+                        <div class="profile-info">
+                            <div class="profile-avatar">
+                                <img id="user-avatar" src="" alt="Profile Picture">
+                            </div>
+                            <div class="profile-details">
+                                <h4 id="user-name">User Name</h4>
+                                <p id="user-email">user@email.com</p>
+                            </div>
+                        </div>
+                        
+                        <div class="profile-actions">
+                            <button id="signout-btn" class="btn btn-secondary">Sign Out</button>
+                            <button id="delete-account-btn" class="btn btn-danger">Delete Account</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Settings Screen -->
+            <div id="settings-screen" class="screen">
+                <div class="container">
+                    <h2>⚙️ Settings</h2>
+                    
+                    <div class="settings-section">
+                        <h3>Preferences</h3>
+                        
+                        <div class="setting-group">
+                            <label class="setting-label">
+                                <span>Dark Mode</span>
+                                <div class="toggle-switch">
+                                    <input type="checkbox" id="dark-mode-toggle">
+                                    <span class="toggle-slider"></span>
+                                </div>
+                            </label>
+                        </div>
+                        
+                        <div class="setting-group">
+                            <label class="setting-label">
+                                <span>Notifications</span>
+                                <div class="toggle-switch">
+                                    <input type="checkbox" id="notifications-toggle" checked>
+                                    <span class="toggle-slider"></span>
+                                </div>
+                            </label>
+                        </div>
+                        
+                        <div class="setting-group">
+                            <label class="setting-label">
+                                <span>Auto-save meal plans</span>
+                                <div class="toggle-switch">
+                                    <input type="checkbox" id="autosave-toggle" checked>
+                                    <span class="toggle-slider"></span>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="settings-section">
+                        <h3>Units</h3>
+                        
+                        <div class="setting-group">
+                            <label for="weight-unit">Weight Unit</label>
+                            <select id="weight-unit" class="setting-select">
+                                <option value="kg">Kilograms (kg)</option>
+                                <option value="lbs">Pounds (lbs)</option>
+                            </select>
+                        </div>
+                        
+                        <div class="setting-group">
+                            <label for="height-unit">Height Unit</label>
+                            <select id="height-unit" class="setting-select">
+                                <option value="cm">Centimeters (cm)</option>
+                                <option value="ft">Feet & Inches (ft)</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="settings-section">
+                        <h3>Data & Privacy</h3>
+                        
+                        <div class="setting-group">
+                            <button id="export-data-btn" class="btn btn-secondary">Export My Data</button>
+                        </div>
+                        
+                        <div class="setting-group">
+                            <button id="clear-data-btn" class="btn btn-secondary">Clear All Data</button>
+                        </div>
+                        
+                        <div class="setting-group">
+                            <button id="privacy-policy-btn" class="btn btn-secondary">Privacy Policy</button>
+                        </div>
+                    </div>
+                    
+                    <div class="settings-section">
+                        <h3>About</h3>
+                        
+                        <div class="about-info">
+                            <p><strong>Version:</strong> 1.0.0</p>
+                            <p><strong>Made with ❤️ by:</strong> Make Me A Sandwich Team</p>
+                            <p><strong>Contact:</strong> support@makemeasandwich.app</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html> 

@@ -6,6 +6,7 @@ const MenuBar = ({ currentScreen, onScreenChange, userProfile }) => {
     { id: 'questionnaire', label: 'New Plan' },
     { id: 'meal-plan', label: 'Meal Plan' },
     { id: 'shopping-list', label: 'Shopping' },
+    { id: 'recipe-database', label: 'Recipes' },
     { id: 'calendar', label: 'Calendar' },
     { id: 'account', label: 'Account' },
     { id: 'settings', label: 'Settings' }

@@ -1,0 +1,18 @@
+{
+  "recipes": [],
+  "metadata": {
+    "total": 0,
+    "scrapedAt": "2025-07-26T23:30:53.641Z",
+    "source": "BBC Good Food",
+    "errors": [
+      {
+        "category": "dinner",
+        "error": "Failed to scrape category dinner: Request failed with status code 404"
+      },
+      {
+        "category": "quick-easy",
+        "error": "Failed to scrape category quick-easy: Request failed with status code 404"
+      }
+    ]
+  }
+}
