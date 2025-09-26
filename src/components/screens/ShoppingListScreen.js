@@ -4,9 +4,24 @@ import { useMealPlanner } from '../../context/MealPlannerContext';
 const ShoppingListScreen = ({ onBack }) => {
   const { shoppingList, ingredientPrices } = useMealPlanner();
   
-  // Initialize from context only
+  // Initialize from context only - all items checked by default
   const [checkedItems, setCheckedItems] = useState({});
   const [showPrices, setShowPrices] = useState(true);
+
+  // Initialize all items as checked by default
+  useEffect(() => {
+    const aggregated = buildAggregatedCategories();
+    const initialChecked = {};
+    
+    Object.entries(aggregated).forEach(([category, items]) => {
+      items.forEach(itemObj => {
+        const key = `${category}-${itemObj.item}`;
+        initialChecked[key] = true; // All items checked by default
+      });
+    });
+    
+    setCheckedItems(initialChecked);
+  }, [shoppingList]);
   const [userLocation, setUserLocation] = useState('');
   const [nearbySupermarkets, setNearbySupermarkets] = useState([]);
   const [selectedSupermarket, setSelectedSupermarket] = useState(null);
@@ -295,14 +310,53 @@ const ShoppingListScreen = ({ onBack }) => {
   const getItemPrice = (item) => {
     // Handle both string items and object items with item property
     const itemName = typeof item === 'string' ? item : item.item;
-    const priceInfo = ingredientPrices[itemName.toLowerCase()];
+    const normalizedName = itemName.toLowerCase().trim();
+    
+    // Try exact match first
+    let priceInfo = ingredientPrices[normalizedName];
+    
+    // If no exact match, try fuzzy matching
+    if (!priceInfo) {
+      const availableKeys = Object.keys(ingredientPrices);
+      const fuzzyMatch = availableKeys.find(key => {
+        // Check if the ingredient name contains any of the available keys
+        return normalizedName.includes(key) || key.includes(normalizedName);
+      });
+      
+      if (fuzzyMatch) {
+        priceInfo = ingredientPrices[fuzzyMatch];
+      }
+    }
+    
+    // Debug: Log what we're looking for
+    console.log('Looking for price for:', normalizedName);
+    console.log('Available prices:', Object.keys(ingredientPrices));
+    console.log('Found price:', priceInfo);
+    
     return priceInfo ? priceInfo.price : null;
   };
 
   const getItemUnit = (item) => {
     // Handle both string items and object items with item property
     const itemName = typeof item === 'string' ? item : item.item;
-    const priceInfo = ingredientPrices[itemName.toLowerCase()];
+    const normalizedName = itemName.toLowerCase().trim();
+    
+    // Try exact match first
+    let priceInfo = ingredientPrices[normalizedName];
+    
+    // If no exact match, try fuzzy matching
+    if (!priceInfo) {
+      const availableKeys = Object.keys(ingredientPrices);
+      const fuzzyMatch = availableKeys.find(key => {
+        // Check if the ingredient name contains any of the available keys
+        return normalizedName.includes(key) || key.includes(normalizedName);
+      });
+      
+      if (fuzzyMatch) {
+        priceInfo = ingredientPrices[fuzzyMatch];
+      }
+    }
+    
     return priceInfo ? priceInfo.unit : '';
   };
 

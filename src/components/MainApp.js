@@ -16,7 +16,7 @@ const MainApp = ({ userProfile = null, onLogout = () => {} }) => {
   const screens = {
     welcome: <WelcomeScreen onStart={() => setCurrentScreen('questionnaire')} />,
     questionnaire: <QuestionnaireScreen onComplete={() => setCurrentScreen('meal-plan')} />,
-    'meal-plan': <MealPlanScreen onViewShopping={() => setCurrentScreen('shopping-list')} />,
+    'meal-plan': <MealPlanScreen onViewShopping={() => setCurrentScreen('shopping-list')} onScreenChange={setCurrentScreen} />,
     'shopping-list': <ShoppingListScreen onBack={() => setCurrentScreen('meal-plan')} />,
     'recipe-database': <RecipeDatabase />,
     calendar: <CalendarScreen />,

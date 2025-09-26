@@ -3,7 +3,7 @@ import { useMealPlanner } from '../../context/MealPlannerContext';
 import notificationService from '../../utils/notificationService';
 import recipeService from '../../utils/recipeService';
 
-const MealPlanScreen = ({ onViewShopping }) => {
+const MealPlanScreen = ({ onViewShopping, onScreenChange }) => {
   const { userData, mealPlan, setMealPlan, setShoppingList } = useMealPlanner();
   const [loading, setLoading] = useState(true);
   const [emailSent, setEmailSent] = useState(false);
