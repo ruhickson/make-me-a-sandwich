@@ -741,8 +741,13 @@ const MealPlanScreen = ({ onViewShopping }) => {
                   <h3>{mealTypeLabels[mealType]}</h3>
                 </div>
                 <div 
-                  className="meal-card-tinder"
-                  style={{ backgroundColor: meal?.color }}
+                  className={`meal-card-tinder meal-card-${mealType}`}
+                  style={{ 
+                    backgroundImage: meal?.image ? `url(${meal.image})` : 'none',
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center',
+                    backgroundRepeat: 'no-repeat'
+                  }}
                   onClick={() => handleMealClick(meal)}
                 >
                   <h4 title={meal?.name}>{meal?.name}</h4>
