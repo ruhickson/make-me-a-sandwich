@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useMealPlanner } from '../../context/MealPlannerContext';
 import notificationService from '../../utils/notificationService';
 import recipeService from '../../utils/recipeService';
@@ -10,6 +10,12 @@ const MealPlanScreen = ({ onViewShopping }) => {
   const [selectedRecipe, setSelectedRecipe] = useState(null);
   const [showRecipeModal, setShowRecipeModal] = useState(false);
   const [notificationEnabled, setNotificationEnabled] = useState(false);
+  const [selectedDay, setSelectedDay] = useState(0);
+  const [selectedMealType, setSelectedMealType] = useState('breakfasts');
+  
+  // Refs for swipe handling
+  const dayScrollRef = useRef(null);
+  const mealScrollRefs = useRef({});
 
   useEffect(() => {
     if (userData && Object.keys(userData).length > 0) {
@@ -642,6 +648,41 @@ const MealPlanScreen = ({ onViewShopping }) => {
     });
   };
 
+  // Swipe handling functions
+  const handleDaySwipe = (direction) => {
+    if (!dayScrollRef.current) return;
+    const container = dayScrollRef.current;
+    const scrollAmount = 120; // Width of each day card
+    const currentScroll = container.scrollLeft;
+    const newScroll = direction === 'left' 
+      ? Math.max(0, currentScroll - scrollAmount)
+      : Math.min(container.scrollWidth - container.clientWidth, currentScroll + scrollAmount);
+    
+    container.scrollTo({ left: newScroll, behavior: 'smooth' });
+  };
+
+  const handleMealSwipe = (mealType, direction) => {
+    const scrollRef = mealScrollRefs.current[mealType];
+    if (!scrollRef) return;
+    
+    const container = scrollRef;
+    const scrollAmount = 200; // Width of each meal card
+    const currentScroll = container.scrollLeft;
+    const newScroll = direction === 'left' 
+      ? Math.max(0, currentScroll - scrollAmount)
+      : Math.min(container.scrollWidth - container.clientWidth, currentScroll + scrollAmount);
+    
+    container.scrollTo({ left: newScroll, behavior: 'smooth' });
+  };
+
+  const scrollToDay = (dayIndex) => {
+    if (!dayScrollRef.current) return;
+    const container = dayScrollRef.current;
+    const scrollAmount = 120;
+    container.scrollTo({ left: dayIndex * scrollAmount, behavior: 'smooth' });
+    setSelectedDay(dayIndex);
+  };
+
   if (loading) {
     return (
       <div className="container">
@@ -665,112 +706,68 @@ const MealPlanScreen = ({ onViewShopping }) => {
   }
 
   return (
-    <div className="container">
-      <div className="meal-plan-container">
-        <div className="meal-plan-header">
-          <h2>Your Weekly Meal Plan</h2>
-          <p>Simple, nutritious meals with minimal cooking time</p>
-        </div>
+    <div className="meal-plan-mobile">
 
-        <div className="weekly-calendar">
-          <div className="calendar-header">
-            <div className="calendar-header-content">
-              <div className="days-header">
-                <div className="meal-plan-title-card">
-                  <h3>{userData?.name || 'Your'} Meal Plan</h3>
-                </div>
-                {mealPlan.week.map((day, index) => (
-                  <div key={index} className="day-header-cell">
-                    <h3>{day.name}</h3>
-                    <p>{day.date}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-          
-          <div className="calendar-content">
-            {['breakfasts', 'lunches', 'dinners', 'snacks'].map((mealType, mealIndex) => {
-              // Proper mapping for meal type labels
-              const mealTypeLabels = {
-                'breakfasts': 'Breakfast',
-                'lunches': 'Lunch', 
-                'dinners': 'Dinner',
-                'snacks': 'Snack'
-              };
-              
-              return (
-                <div key={mealType} className="meal-row">
-                  <div className="meal-type-label">
-                    <div className={`meal-type ${mealType.slice(0, -1)}`}>
-                      {mealTypeLabels[mealType]}
-                    </div>
-                  </div>
-                  <div className="meal-slots">
-                    {mealPlan.week.map((day, dayIndex) => {
-                      const meal = getMealForDay(day.name, mealType);
-                      return (
-                        <div 
-                          key={dayIndex}
-                          className="meal-slot"
-                          style={{ backgroundColor: meal?.color }}
-                          onClick={() => handleMealClick(meal)}
-                        >
-                          <h4 title={meal?.name}>{meal?.name}</h4>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-
-        <div className="meal-plan-actions">
-          <button className="btn btn-primary" onClick={onViewShopping}>
-            View Shopping List
-          </button>
-          <button className="btn btn-secondary" onClick={handlePrintPlan}>
-            📄 Print Plan
-          </button>
-          <button 
-            className={`btn btn-secondary ${emailSent ? 'btn-success' : ''}`}
-            onClick={handleEmailPlan}
-            disabled={emailSent}
-          >
-            {emailSent ? '✅ Email Sent' : '📧 Email Plan'}
-          </button>
-          {!notificationEnabled ? (
-            <button className="btn btn-secondary" onClick={handleEnableNotifications}>
-              🔔 Enable Notifications
-            </button>
-          ) : (
-            <button className="btn btn-secondary" onClick={handleTestNotification}>
-              🔔 Test Notification
-            </button>
-          )}
-        </div>
-
-        <div className="meal-plan-separator"></div>
-
-        <div className="cooking-schedule">
-          <h3>Cooking Schedule</h3>
-          <p>Cook in batches on your selected days to save time and effort</p>
-          <div className="schedule-grid">
-            {mealPlan.cookingSchedule.map((day, index) => (
-              <div key={index} className="schedule-day">
-                <h4>{day.day}</h4>
-                <ul>
-                  {day.tasks.map((task, taskIndex) => (
-                    <li key={taskIndex}>{task}</li>
-                  ))}
-                </ul>
+        {/* Swipeable Days Header */}
+        <div className="days-swiper">
+          <div className="days-scroll-container" ref={dayScrollRef}>
+            {mealPlan.week.map((day, index) => (
+              <div 
+                key={index} 
+                className={`day-card ${selectedDay === index ? 'active' : ''}`}
+                onClick={() => scrollToDay(index)}
+              >
+                <h3>{day.name}</h3>
+                <p>{day.date}</p>
               </div>
             ))}
           </div>
+          <button className="swipe-btn left" onClick={() => handleDaySwipe('left')}>‹</button>
+          <button className="swipe-btn right" onClick={() => handleDaySwipe('right')}>›</button>
         </div>
-      </div>
+
+        {/* Swipeable Meal Types */}
+        <div className="meal-types-container">
+          {['breakfasts', 'lunches', 'dinners', 'snacks'].map((mealType) => {
+            const mealTypeLabels = {
+              'breakfasts': 'Breakfast',
+              'lunches': 'Lunch', 
+              'dinners': 'Dinner',
+              'snacks': 'Snack'
+            };
+            
+            return (
+              <div key={mealType} className="meal-type-section">
+                <div className="meal-type-header">
+                  <h3>{mealTypeLabels[mealType]}</h3>
+                  <div className="meal-swipe-controls">
+                    <button onClick={() => handleMealSwipe(mealType, 'left')}>‹</button>
+                    <button onClick={() => handleMealSwipe(mealType, 'right')}>›</button>
+                  </div>
+                </div>
+                <div 
+                  className="meals-scroll-container"
+                  ref={el => mealScrollRefs.current[mealType] = el}
+                >
+                  {mealPlan.week.map((day, dayIndex) => {
+                    const meal = getMealForDay(day.name, mealType);
+                    return (
+                      <div 
+                        key={dayIndex}
+                        className="meal-card"
+                        style={{ backgroundColor: meal?.color }}
+                        onClick={() => handleMealClick(meal)}
+                      >
+                        <div className="meal-day">{day.name}</div>
+                        <h4 title={meal?.name}>{meal?.name}</h4>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            );
+          })}
+        </div>
 
       {/* Recipe Modal */}
       {showRecipeModal && selectedRecipe && (
