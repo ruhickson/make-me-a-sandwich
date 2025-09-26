@@ -12,6 +12,22 @@ const MealPlanScreen = ({ onViewShopping }) => {
   const [notificationEnabled, setNotificationEnabled] = useState(false);
   const [selectedDay, setSelectedDay] = useState(0);
   const [selectedMealType, setSelectedMealType] = useState('breakfasts');
+  const [mealOptions, setMealOptions] = useState({
+    breakfasts: [],
+    lunches: [],
+    dinners: [],
+    snacks: []
+  });
+  const [currentMealIndex, setCurrentMealIndex] = useState({
+    breakfasts: 0,
+    lunches: 0,
+    dinners: 0,
+    snacks: 0
+  });
+  const [swipeStart, setSwipeStart] = useState({ x: 0, y: 0 });
+  const [swipeEnd, setSwipeEnd] = useState({ x: 0, y: 0 });
+  const [cardTransform, setCardTransform] = useState({ x: 0, y: 0, rotation: 0 });
+  const [isDragging, setIsDragging] = useState(false);
   
   // Refs for swipe handling
   const dayScrollRef = useRef(null);
@@ -20,8 +36,28 @@ const MealPlanScreen = ({ onViewShopping }) => {
   useEffect(() => {
     if (userData && Object.keys(userData).length > 0) {
       generateMealPlan();
+      generateMealOptions();
     }
   }, [userData]);
+
+  const generateMealOptions = async () => {
+    try {
+      await recipeService.loadAllRecipes();
+      const allRecipes = recipeService.getAllRecipes();
+      
+      // Use the same recipe source as the Recipes section
+      const options = {
+        breakfasts: recipeService.getRandomRecipesFromArray(allRecipes, 21),
+        lunches: recipeService.getRandomRecipesFromArray(allRecipes, 21),
+        dinners: recipeService.getRandomRecipesFromArray(allRecipes, 21),
+        snacks: recipeService.getRandomRecipesFromArray(allRecipes, 21)
+      };
+      
+      setMealOptions(options);
+    } catch (error) {
+      console.error('Error generating meal options:', error);
+    }
+  };
 
   const generateMealPlan = async () => {
     setLoading(true);
@@ -661,19 +697,6 @@ const MealPlanScreen = ({ onViewShopping }) => {
     container.scrollTo({ left: newScroll, behavior: 'smooth' });
   };
 
-  const handleMealSwipe = (mealType, direction) => {
-    const scrollRef = mealScrollRefs.current[mealType];
-    if (!scrollRef) return;
-    
-    const container = scrollRef;
-    const scrollAmount = 200; // Width of each meal card
-    const currentScroll = container.scrollLeft;
-    const newScroll = direction === 'left' 
-      ? Math.max(0, currentScroll - scrollAmount)
-      : Math.min(container.scrollWidth - container.clientWidth, currentScroll + scrollAmount);
-    
-    container.scrollTo({ left: newScroll, behavior: 'smooth' });
-  };
 
   const scrollToDay = (dayIndex) => {
     if (!dayScrollRef.current) return;
@@ -681,6 +704,90 @@ const MealPlanScreen = ({ onViewShopping }) => {
     const scrollAmount = 120;
     container.scrollTo({ left: dayIndex * scrollAmount, behavior: 'smooth' });
     setSelectedDay(dayIndex);
+  };
+
+  const handleMealSwipe = (mealType, direction) => {
+    const currentIndex = currentMealIndex[mealType];
+    const maxIndex = mealOptions[mealType].length - 1;
+    
+    if (direction === 'left') {
+      // Swipe left - dislike, move to next
+      const nextIndex = currentIndex < maxIndex ? currentIndex + 1 : 0;
+      setCurrentMealIndex(prev => ({
+        ...prev,
+        [mealType]: nextIndex
+      }));
+    } else if (direction === 'right') {
+      // Swipe right - like, move to next
+      const nextIndex = currentIndex < maxIndex ? currentIndex + 1 : 0;
+      setCurrentMealIndex(prev => ({
+        ...prev,
+        [mealType]: nextIndex
+      }));
+    }
+  };
+
+  const handleTouchStart = (e) => {
+    const touch = e.touches[0];
+    setSwipeStart({ x: touch.clientX, y: touch.clientY });
+    setIsDragging(true);
+    setCardTransform({ x: 0, y: 0, rotation: 0 });
+  };
+
+  const handleTouchMove = (e) => {
+    if (!isDragging) return;
+    
+    const touch = e.touches[0];
+    const deltaX = touch.clientX - swipeStart.x;
+    const deltaY = touch.clientY - swipeStart.y;
+    
+    // Calculate rotation based on horizontal movement
+    const rotation = deltaX * 0.1;
+    
+    setCardTransform({ x: deltaX, y: deltaY, rotation });
+    setSwipeEnd({ x: touch.clientX, y: touch.clientY });
+  };
+
+  const handleTouchEnd = (mealType) => {
+    if (!isDragging) return;
+    
+    const deltaX = swipeEnd.x - swipeStart.x;
+    const threshold = 100; // Minimum swipe distance
+    
+    if (Math.abs(deltaX) > threshold) {
+      if (deltaX > 0) {
+        // Swipe right - like
+        handleMealSwipe(mealType, 'right');
+      } else {
+        // Swipe left - dislike
+        handleMealSwipe(mealType, 'left');
+      }
+    }
+    
+    // Reset states
+    setIsDragging(false);
+    setCardTransform({ x: 0, y: 0, rotation: 0 });
+    setSwipeStart({ x: 0, y: 0 });
+    setSwipeEnd({ x: 0, y: 0 });
+  };
+
+  const getMealBackgroundImage = (meal, mealType) => {
+    // Try different image property names
+    const imageUrl = meal?.image || meal?.img || meal?.photo || meal?.picture;
+    
+    if (imageUrl) {
+      return `url(${imageUrl})`;
+    }
+    
+    // Fallback images based on meal type
+    const fallbackImages = {
+      breakfasts: 'https://images.unsplash.com/photo-1551218808-94e220e084d2?w=400&h=600&fit=crop&crop=center',
+      lunches: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=400&h=600&fit=crop&crop=center',
+      dinners: 'https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=400&h=600&fit=crop&crop=center',
+      snacks: 'https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=400&h=600&fit=crop&crop=center'
+    };
+    
+    return `url(${fallbackImages[mealType]})`;
   };
 
   if (loading) {
@@ -708,22 +815,26 @@ const MealPlanScreen = ({ onViewShopping }) => {
   return (
     <div className="meal-plan-mobile">
 
-        {/* 7 Days Header */}
-        <div className="days-header">
-          {mealPlan.week.map((day, index) => (
-            <div 
-              key={index} 
-              className={`day-card ${selectedDay === index ? 'active' : ''}`}
-              onClick={() => setSelectedDay(index)}
-            >
-              <h3>{day.name}</h3>
-              <p>{day.date}</p>
-            </div>
-          ))}
+        {/* Swipeable Days Header */}
+        <div className="days-swiper">
+          <div className="days-scroll-container" ref={dayScrollRef}>
+            {mealPlan.week.map((day, index) => (
+              <div 
+                key={index} 
+                className={`day-card ${selectedDay === index ? 'active' : ''}`}
+                onClick={() => scrollToDay(index)}
+              >
+                <h3>{day.name}</h3>
+                <p>{day.date}</p>
+              </div>
+            ))}
+          </div>
+          <button className="swipe-btn left" onClick={() => handleDaySwipe('left')}>‹</button>
+          <button className="swipe-btn right" onClick={() => handleDaySwipe('right')}>›</button>
         </div>
 
-        {/* Tinder-style Meal Swiper */}
-        <div className="meal-swiper-container">
+        {/* Individual Meal Swipers */}
+        <div className="meal-swipers-container">
           {['breakfasts', 'lunches', 'dinners', 'snacks'].map((mealType) => {
             const mealTypeLabels = {
               'breakfasts': 'Breakfast',
@@ -732,26 +843,50 @@ const MealPlanScreen = ({ onViewShopping }) => {
               'snacks': 'Snack'
             };
             
-            const currentDay = mealPlan.week[selectedDay];
-            const meal = getMealForDay(currentDay.name, mealType);
+            const currentIndex = currentMealIndex[mealType];
+            const currentMeal = mealOptions[mealType][currentIndex];
+            const totalMeals = mealOptions[mealType].length;
+            const progress = totalMeals > 0 ? ((currentIndex + 1) / totalMeals) * 100 : 0;
+            
+            // Debug: Log the current meal to see what properties it has
+            console.log('Current meal:', currentMeal);
+            console.log('Meal options length:', totalMeals);
             
             return (
-              <div key={mealType} className="meal-swiper-card">
-                <div className="meal-type-label">
+              <div key={mealType} className="meal-swiper-section">
+                <div className="meal-type-header">
                   <h3>{mealTypeLabels[mealType]}</h3>
+                  <div className="meal-progress">
+                    <span>{currentIndex + 1} / {totalMeals}</span>
+                    <div className="progress-bar">
+                      <div className="progress-fill" style={{ width: `${progress}%` }}></div>
+                    </div>
+                  </div>
                 </div>
-                <div 
-                  className={`meal-card-tinder meal-card-${mealType}`}
-                  style={{ 
-                    backgroundImage: meal?.image ? `url(${meal.image})` : 'none',
-                    backgroundSize: 'cover',
-                    backgroundPosition: 'center',
-                    backgroundRepeat: 'no-repeat'
-                  }}
-                  onClick={() => handleMealClick(meal)}
-                >
-                  <h4 title={meal?.name}>{meal?.name}</h4>
-                  <p className="meal-description">{meal?.description}</p>
+                
+                <div className="meal-card-swiper">
+                  <div 
+                    className={`meal-card-tinder meal-card-${mealType}`}
+                    style={{ 
+                      backgroundImage: getMealBackgroundImage(currentMeal, mealType),
+                      backgroundSize: 'cover',
+                      backgroundPosition: 'center',
+                      backgroundRepeat: 'no-repeat',
+                      transform: `translate(${cardTransform.x}px, ${cardTransform.y}px) rotate(${cardTransform.rotation}deg)`,
+                      transition: isDragging ? 'none' : 'transform 0.3s ease'
+                    }}
+                    onTouchStart={handleTouchStart}
+                    onTouchMove={handleTouchMove}
+                    onTouchEnd={() => handleTouchEnd(mealType)}
+                    onClick={() => !isDragging && handleMealClick(currentMeal)}
+                  >
+                    <div className="swipe-hint">
+                      <div className="swipe-left-hint">👈 Dislike</div>
+                      <div className="swipe-right-hint">Like 👉</div>
+                    </div>
+                    <h4 title={currentMeal?.name}>{currentMeal?.name}</h4>
+                    <p className="meal-description">{currentMeal?.description}</p>
+                  </div>
                 </div>
               </div>
             );
