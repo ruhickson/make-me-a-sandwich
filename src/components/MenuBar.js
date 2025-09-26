@@ -1,6 +1,6 @@
 import React from 'react';
 
-const MenuBar = ({ currentScreen, onScreenChange, userProfile }) => {
+const MenuBar = ({ currentScreen, onScreenChange, userProfile = null }) => {
   const menuItems = [
     { id: 'welcome', label: 'Home' },
     { id: 'questionnaire', label: 'New Plan' },

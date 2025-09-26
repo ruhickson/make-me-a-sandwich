@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useMealPlanner } from '../../context/MealPlannerContext';
 
 const QuestionnaireScreen = ({ onComplete }) => {
+  
   const { setUserData, currentQuestionnairePage, setQuestionnairePage, totalQuestionnairePages } = useMealPlanner();
   const [formData, setFormData] = useState({
     // Basic Info
@@ -13,6 +14,11 @@ const QuestionnaireScreen = ({ onComplete }) => {
     // Dietary Restrictions
     dietaryPreferences: [],
     allergies: [],
+    
+    // Cooking Experience & Preferences
+    cookingExperience: '',
+    cookingTime: '',
+    healthGoals: '',
     
     // Cooking Equipment
     cookingEquipment: [],
@@ -209,6 +215,121 @@ const QuestionnaireScreen = ({ onComplete }) => {
     </div>
   );
 
+  const renderCookingExperience = () => (
+    <div className="questionnaire-page">
+      <h2>Cooking Experience & Preferences</h2>
+      <p>Help us tailor recipes to your skill level and preferences.</p>
+      
+      <div className="form-group">
+        <label>Cooking Experience</label>
+        <div className="radio-group">
+          <label>
+            <input
+              type="radio"
+              name="cookingExperience"
+              value="beginner"
+              checked={formData.cookingExperience === 'beginner'}
+              onChange={(e) => handleInputChange('cookingExperience', e.target.value)}
+            />
+            Beginner - I'm learning to cook
+          </label>
+          <label>
+            <input
+              type="radio"
+              name="cookingExperience"
+              value="intermediate"
+              checked={formData.cookingExperience === 'intermediate'}
+              onChange={(e) => handleInputChange('cookingExperience', e.target.value)}
+            />
+            Intermediate - I can follow recipes well
+          </label>
+          <label>
+            <input
+              type="radio"
+              name="cookingExperience"
+              value="advanced"
+              checked={formData.cookingExperience === 'advanced'}
+              onChange={(e) => handleInputChange('cookingExperience', e.target.value)}
+            />
+            Advanced - I can improvise and create dishes
+          </label>
+        </div>
+      </div>
+
+      <div className="form-group">
+        <label>Preferred Cooking Time</label>
+        <div className="radio-group">
+          <label>
+            <input
+              type="radio"
+              name="cookingTime"
+              value="quick"
+              checked={formData.cookingTime === 'quick'}
+              onChange={(e) => handleInputChange('cookingTime', e.target.value)}
+            />
+            Quick (15-30 minutes)
+          </label>
+          <label>
+            <input
+              type="radio"
+              name="cookingTime"
+              value="medium"
+              checked={formData.cookingTime === 'medium'}
+              onChange={(e) => handleInputChange('cookingTime', e.target.value)}
+            />
+            Medium (30-60 minutes)
+          </label>
+          <label>
+            <input
+              type="radio"
+              name="cookingTime"
+              value="relaxed"
+              checked={formData.cookingTime === 'relaxed'}
+              onChange={(e) => handleInputChange('cookingTime', e.target.value)}
+            />
+            Relaxed (1+ hours)
+          </label>
+        </div>
+      </div>
+
+      <div className="form-group">
+        <label>Health Goals</label>
+        <div className="radio-group">
+          <label>
+            <input
+              type="radio"
+              name="healthGoals"
+              value="weight_loss"
+              checked={formData.healthGoals === 'weight_loss'}
+              onChange={(e) => handleInputChange('healthGoals', e.target.value)}
+            />
+            Weight Loss
+          </label>
+          <label>
+            <input
+              type="radio"
+              name="healthGoals"
+              value="maintenance"
+              checked={formData.healthGoals === 'maintenance'}
+              onChange={(e) => handleInputChange('healthGoals', e.target.value)}
+            />
+            Maintenance
+          </label>
+          <label>
+            <input
+              type="radio"
+              name="healthGoals"
+              value="muscle_gain"
+              checked={formData.healthGoals === 'muscle_gain'}
+              onChange={(e) => handleInputChange('healthGoals', e.target.value)}
+            />
+            Muscle Gain
+          </label>
+        </div>
+      </div>
+    </div>
+  );
+
   const renderCookingEquipment = () => (
     <div className="questionnaire-page">
       <h2>Cooking Equipment</h2>
@@ -304,8 +425,10 @@ const QuestionnaireScreen = ({ onComplete }) => {
       case 2:
         return renderDietaryRestrictions();
       case 3:
-        return renderCookingEquipment();
+        return renderCookingExperience();
       case 4:
+        return renderCookingEquipment();
+      case 5:
         return renderCookingSchedule();
       default:
         return renderBasicInfo();

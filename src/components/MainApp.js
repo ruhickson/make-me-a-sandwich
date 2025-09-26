@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { MealPlannerProvider } from '../context/MealPlannerContext';
 import MenuBar from './MenuBar';
 import WelcomeScreen from './screens/WelcomeScreen';
 import QuestionnaireScreen from './screens/QuestionnaireScreen';
@@ -9,7 +10,7 @@ import AccountScreen from './screens/AccountScreen';
 import SettingsScreen from './screens/SettingsScreen';
 import RecipeDatabase from './RecipeDatabase';
 
-const MainApp = ({ userProfile, onLogout }) => {
+const MainApp = ({ userProfile = null, onLogout = () => {} }) => {
   const [currentScreen, setCurrentScreen] = useState('welcome');
 
   const screens = {
@@ -24,16 +25,18 @@ const MainApp = ({ userProfile, onLogout }) => {
   };
 
   return (
-    <div className="main-app">
-      <MenuBar 
-        currentScreen={currentScreen} 
-        onScreenChange={setCurrentScreen}
-        userProfile={userProfile}
-      />
-      <div className="screen-content">
-        {screens[currentScreen]}
+    <MealPlannerProvider>
+      <div className="main-app">
+        <MenuBar 
+          currentScreen={currentScreen} 
+          onScreenChange={setCurrentScreen}
+          userProfile={userProfile}
+        />
+        <div className="screen-content">
+          {screens[currentScreen]}
+        </div>
       </div>
-    </div>
+    </MealPlannerProvider>
   );
 };
 

@@ -526,13 +526,13 @@
 }
 
 .meal-slot {
-  padding: 20px 16px;
+  padding: 12px 10px;
   border-right: 1px solid rgba(255, 255, 255, 0.2);
   transition: all 0.2s ease;
   cursor: pointer;
   position: relative;
   overflow: hidden;
-  min-height: 100px;
+  min-height: 72px;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -551,17 +551,9 @@
 .meal-slot h4 {
   margin: 0 0 6px 0;
   color: #333;
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   font-weight: 600;
   line-height: 1.2;
-}
-
-.meal-slot p {
-  margin: 0;
-  color: #666;
-  font-size: 0.75rem;
-  line-height: 1.3;
-  opacity: 0.8;
 }
 
 /* Cooking Schedule Styles */
@@ -1232,6 +1224,161 @@
   font-weight: bold;
 }
 
+/* Apple Pay-like checkout styles */
+.checkout-summary {
+  background: #f8f9fa;
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 16px;
+  border: 1px solid #e6e6e6;
+}
+
+.checkout-summary h3 {
+  margin: 0 0 6px 0;
+  color: #111;
+  font-weight: 700;
+}
+
+.checkout-summary p {
+  margin: 0 0 12px 0;
+  color: #555;
+}
+
+.summary-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  color: #333;
+  border-bottom: 1px solid #eee;
+}
+
+.summary-row:last-child {
+  border-bottom: none;
+}
+
+.summary-total {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 12px;
+  font-weight: 700;
+  color: #111;
+}
+
+.payment-sheet {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.apple-pay-button {
+  background: #000;
+  color: #fff;
+  border: none;
+  border-radius: 28px;
+  height: 48px;
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.1s ease, opacity 0.2s ease;
+}
+
+.apple-pay-button:hover {
+  transform: translateY(-1px);
+}
+
+.apple-pay-button.processing {
+  opacity: 0.7;
+}
+
+.payment-success {
+  background: #e6f4ea;
+  color: #1e7e34;
+  border: 1px solid #ccebd5;
+  border-radius: 10px;
+  padding: 12px;
+  text-align: center;
+  font-weight: 600;
+}
+
+.payment-methods {
+  color: #666;
+  font-size: 0.9rem;
+  text-align: center;
+}
+
+/* Apple Pay face ID and slider */
+.faceid-glyph {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 8px;
+}
+
+.apple-pay-slider {
+  background: #111;
+  border-radius: 28px;
+  padding: 8px;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: none;
+}
+
+.apple-pay-slider.disabled {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.slider-track {
+  position: relative;
+  height: 40px;
+  border-radius: 20px;
+  background: #000;
+  overflow: hidden;
+}
+
+.slider-fill {
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  background: linear-gradient(90deg, #333, #555);
+}
+
+.slider-thumb {
+  position: absolute;
+  top: 50%;
+  width: 40px;
+  height: 40px;
+  background: #fff;
+  color: #000;
+  border-radius: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  box-shadow: 0 6px 14px rgba(0,0,0,0.35);
+}
+
+.apple-logo {
+  font-size: 20px;
+}
+
+.slider-label {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: #fff;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+}
+
 /* Responsive adjustments for shopping list */
 @media (max-width: 768px) {
   .shopping-list-container {
@@ -1379,10 +1526,90 @@
   font-weight: 500;
 }
 
+.advanced-filters {
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 30px;
+}
+
+.filter-row {
+  display: flex;
+  gap: 20px;
+  margin-bottom: 15px;
+  flex-wrap: wrap;
+}
+
+.filter-row:last-child {
+  margin-bottom: 0;
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  min-width: 150px;
+}
+
+.filter-group label {
+  font-weight: 600;
+  color: #333;
+  font-size: 14px;
+}
+
+.filter-group select {
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background: white;
+  font-size: 14px;
+}
+
+.filter-group select:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2);
+}
+
+.advanced-filters-toggle {
+  margin-left: auto;
+}
+
 .recipes-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
   gap: 25px;
+}
+
+.recipes-featured-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-template-rows: repeat(5, auto);
+  grid-auto-flow: column;
+  gap: 16px;
+  margin-bottom: 30px;
+}
+
+@media (max-width: 700px) {
+  .recipes-featured-grid {
+    grid-template-columns: 1fr;
+    grid-template-rows: none;
+    grid-auto-flow: row;
+  }
+}
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.page-info {
+  color: #555;
+  font-weight: 500;
 }
 
 .recipe-card {
@@ -1599,6 +1826,19 @@
   .selection-info {
     flex-direction: column;
     gap: 10px;
+  }
+  
+  .advanced-filters {
+    padding: 15px;
+  }
+  
+  .filter-row {
+    flex-direction: column;
+    gap: 15px;
+  }
+  
+  .filter-group {
+    min-width: auto;
   }
   
   .recipes-grid {

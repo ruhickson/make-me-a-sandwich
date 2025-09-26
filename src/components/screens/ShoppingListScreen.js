@@ -3,6 +3,8 @@ import { useMealPlanner } from '../../context/MealPlannerContext';
 
 const ShoppingListScreen = ({ onBack }) => {
   const { shoppingList, ingredientPrices } = useMealPlanner();
+  
+  // Initialize from context only
   const [checkedItems, setCheckedItems] = useState({});
   const [showPrices, setShowPrices] = useState(true);
   const [userLocation, setUserLocation] = useState('');
@@ -11,6 +13,58 @@ const ShoppingListScreen = ({ onBack }) => {
   const [showLocationModal, setShowLocationModal] = useState(false);
   const [isLoadingSupermarkets, setIsLoadingSupermarkets] = useState(false);
   const [emailSent, setEmailSent] = useState(false);
+  const [payState, setPayState] = useState({ open: false, supermarket: null, processing: false, success: false });
+  const [slideProgress, setSlideProgress] = useState(0);
+  const [isSliding, setIsSliding] = useState(false);
+
+  // Build a display-friendly, aggregated version of the shopping list
+  const buildAggregatedCategories = () => {
+    const categories = shoppingList?.categories || {};
+    const aggregated = {};
+
+    const normalizeName = (name) => (name || '').toLowerCase().trim();
+    const parseQty = (qty) => {
+      // Examples: "600g", "2 tbsp", "1 portion", "3 portions"
+      if (!qty) return { value: 1, unit: 'portion' };
+      const m = String(qty).match(/(\d+(?:\.\d+)?)\s*(g|kg|ml|l|tbsp|tsp|pieces?|slices?|bunches?|cans?|portion|portions)/i);
+      if (m) {
+        const value = parseFloat(m[1]);
+        let unit = m[2].toLowerCase();
+        if (unit === 'portions') unit = 'portion';
+        return { value, unit };
+      }
+      return { value: 1, unit: 'portion' };
+    };
+
+    const formatQty = (value, unit) => {
+      if (unit && unit !== 'portion') return `${value}${unit}`;
+      return `${value} portion${value > 1 ? 's' : ''}`;
+    };
+
+    Object.entries(categories).forEach(([category, items]) => {
+      if (!aggregated[category]) aggregated[category] = [];
+      const map = new Map();
+      items.forEach(itemObj => {
+        const name = normalizeName(itemObj.item);
+        const { value, unit } = parseQty(itemObj.quantity);
+        const key = `${name}|${unit}`;
+        if (!map.has(key)) {
+          map.set(key, { item: name, value, unit });
+        } else {
+          const acc = map.get(key);
+          acc.value += value;
+          map.set(key, acc);
+        }
+      });
+      aggregated[category] = Array.from(map.values()).map(v => ({
+        item: v.item,
+        quantity: formatQty(v.value, v.unit),
+        checked: false
+      }));
+    });
+
+    return aggregated;
+  };
 
   // Mock supermarket data with Irish supermarkets (max 6)
   const supermarketData = {
@@ -100,6 +154,75 @@ const ShoppingListScreen = ({ onBack }) => {
     }
   };
 
+  const getOrderButtonStyle = (name) => {
+    const styles = {
+      'Tesco': { backgroundColor: '#003a8c', color: '#ffffff', border: 'none' }, // Dark Blue
+      'SuperValu': { backgroundColor: '#8b0000', color: '#ffffff', border: 'none' }, // Dark Red
+      'Dunnes Stores': { backgroundColor: '#006400', color: '#ffffff', border: 'none' }, // Dark Green
+      'Centra': { backgroundColor: '#006400', color: '#d4af37', border: '2px solid #d4af37' }, // Dark Green with Gold text
+      'Lidl': { backgroundColor: '#d4af37', color: '#003a8c', border: '2px solid #003a8c' }, // Gold with Blue text
+      'Aldi': { backgroundColor: '#003a8c', color: '#d4af37', border: '2px solid #d4af37' } // Blue with Gold text
+    };
+    return styles[name] || { backgroundColor: '#333', color: '#fff', border: 'none' };
+  };
+
+  const getSupermarketOrderUrl = (name) => {
+    const urls = {
+      'Tesco': 'https://www.tesco.ie/groceries/en-IE/',
+      'SuperValu': 'https://shop.supervalu.ie/',
+      'Dunnes Stores': 'https://www.dunnesstoresgrocery.com/',
+      // Some stores may not support online grocery ordering nationally
+      // 'Centra': '',
+      // 'Lidl': '',
+      // 'Aldi': 'https://groceries.aldi.ie/'
+    };
+    return urls[name] || '';
+  };
+
+  const handleOrderClick = (e, supermarket) => {
+    e.stopPropagation();
+    setPayState({ open: true, supermarket, processing: false, success: false });
+  };
+
+  const closePayModal = () => setPayState({ open: false, supermarket: null, processing: false, success: false });
+
+  const confirmApplePay = () => {
+    setPayState(prev => ({ ...prev, processing: true }));
+    setTimeout(() => {
+      setPayState(prev => ({ ...prev, processing: false, success: true }));
+      setTimeout(() => closePayModal(), 1500);
+    }, 1500);
+  };
+
+  // Slide-to-pay logic (simple press-and-slide with mouse/touch)
+  const startSlide = () => {
+    if (payState.processing || payState.success) return;
+    setIsSliding(true);
+  };
+
+  const stopSlide = () => {
+    if (!isSliding) return;
+    setIsSliding(false);
+    if (slideProgress >= 95) {
+      setSlideProgress(100);
+      confirmApplePay();
+    } else {
+      // snap back
+      setSlideProgress(0);
+    }
+  };
+
+  const onSlideMove = (e) => {
+    if (!isSliding) return;
+    const track = document.querySelector('.apple-pay-slider');
+    if (!track) return;
+    const rect = track.getBoundingClientRect();
+    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+    let pct = ((clientX - rect.left) / rect.width) * 100;
+    pct = Math.max(0, Math.min(100, pct));
+    setSlideProgress(pct);
+  };
+
   useEffect(() => {
     // Check if user has already set location
     const savedLocation = localStorage.getItem('userLocation');
@@ -115,7 +238,7 @@ const ShoppingListScreen = ({ onBack }) => {
   useEffect(() => {
     if (shoppingList && shoppingList.categories) {
       const initialCheckedItems = {};
-      Object.entries(shoppingList.categories).forEach(([category, items]) => {
+      Object.entries(buildAggregatedCategories()).forEach(([category, items]) => {
         items.forEach(itemObj => {
           const key = `${category}-${itemObj.item}`;
           initialCheckedItems[key] = false; // Start with all items unchecked (needed)
@@ -185,11 +308,11 @@ const ShoppingListScreen = ({ onBack }) => {
 
   const calculateTotalCost = (supermarket = null) => {
     let total = 0;
-    Object.entries(shoppingList.categories || {}).forEach(([category, items]) => {
-      items.forEach(item => {
-        const key = `${category}-${item}`;
-        if (!checkedItems[key]) { // Only count unchecked items (still needed)
-          const price = getItemPrice(item);
+    Object.entries(buildAggregatedCategories() || {}).forEach(([category, items]) => {
+      items.forEach(itemObj => {
+        const key = `${category}-${itemObj.item}`;
+        if (!checkedItems[key]) {
+          const price = getItemPrice(itemObj);
           if (price) {
             const multiplier = supermarket ? supermarket.priceMultiplier : 1.0;
             total += price * multiplier;
@@ -206,7 +329,7 @@ const ShoppingListScreen = ({ onBack }) => {
 
   const getTotalItems = () => {
     let total = 0;
-    Object.values(shoppingList.categories || {}).forEach(items => {
+    Object.values(buildAggregatedCategories() || {}).forEach(items => {
       total += items.length;
     });
     return total;
@@ -398,6 +521,15 @@ const ShoppingListScreen = ({ onBack }) => {
                         <p>🚚 €{supermarket.deliveryFee} delivery</p>
                       )}
                     </div>
+                    <div className="supermarket-actions">
+                      <button
+                        className="btn order-btn"
+                        style={getOrderButtonStyle(supermarket.name)}
+                        onClick={(e) => handleOrderClick(e, supermarket)}
+                      >
+                        🚚 Order from {supermarket.name}
+                      </button>
+                    </div>
                   </div>
                 ))}
               </div>
@@ -417,7 +549,7 @@ const ShoppingListScreen = ({ onBack }) => {
         </div>
 
         <div className="shopping-list-categories">
-          {Object.entries(shoppingList.categories).map(([category, items]) => (
+          {Object.entries(buildAggregatedCategories()).map(([category, items]) => (
             <div key={category} className="category-section">
               <h2>{category}</h2>
               <div className="items-list">
@@ -515,6 +647,85 @@ const ShoppingListScreen = ({ onBack }) => {
             )}
           </ul>
         </div>
+      
+      {/* Apple Pay-like Modal */}
+      {payState.open && (
+        <div className="modal-overlay" onClick={closePayModal}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2>Checkout</h2>
+              <button className="modal-close" onClick={closePayModal}>×</button>
+            </div>
+            <div className="modal-body">
+              <div className="checkout-summary">
+                <h3>{payState.supermarket.name}</h3>
+                <p>{userLocation || 'Your location'}</p>
+                <div className="summary-row">
+                  <span>Items</span>
+                  <span>{getTotalItems() - getCheckedCount()}</span>
+                </div>
+                <div className="summary-row">
+                  <span>Subtotal</span>
+                  <span>€{calculateTotalCost(payState.supermarket)}</span>
+                </div>
+                {payState.supermarket.deliveryFee > 0 && (
+                  <div className="summary-row">
+                    <span>Delivery</span>
+                    <span>€{payState.supermarket.deliveryFee.toFixed(2)}</span>
+                  </div>
+                )}
+                <div className="summary-total">
+                  <span>Total</span>
+                  <span>
+                    €{(
+                      parseFloat(calculateTotalCost(payState.supermarket)) +
+                      (payState.supermarket.deliveryFee || 0)
+                    ).toFixed(2)}
+                  </span>
+                </div>
+              </div>
+
+              <div className="payment-sheet">
+                {!payState.success ? (
+                  <>
+                    <div className="faceid-glyph" aria-hidden="true">
+                      <svg width="36" height="36" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <rect x="2" y="2" width="20" height="20" rx="4" stroke="#111" strokeWidth="1.8"/>
+                        <circle cx="9" cy="10" r="1.2" fill="#111"/>
+                        <circle cx="15" cy="10" r="1.2" fill="#111"/>
+                        <path d="M8 15c1.2 1 2.8 1.5 4 1.5s2.8-.5 4-1.5" stroke="#111" strokeWidth="1.6" strokeLinecap="round"/>
+                      </svg>
+                    </div>
+                    <div
+                      className={`apple-pay-slider ${payState.processing ? 'disabled' : ''}`}
+                      onMouseDown={startSlide}
+                      onMouseMove={onSlideMove}
+                      onMouseUp={stopSlide}
+                      onMouseLeave={stopSlide}
+                      onTouchStart={startSlide}
+                      onTouchMove={onSlideMove}
+                      onTouchEnd={stopSlide}
+                    >
+                      <div className="slider-track">
+                        <div className="slider-fill" style={{ width: `${slideProgress}%` }}></div>
+                        <div className="slider-thumb" style={{ left: `calc(${slideProgress}% - 20px)` }}>
+                          <span className="apple-logo"></span>
+                        </div>
+                        <div className="slider-label">{isSliding ? 'Slide to Pay' : 'Slide to Pay'}</div>
+                      </div>
+                    </div>
+                  </>
+                ) : (
+                  <div className="payment-success">✅ Paid with  Pay</div>
+                )}
+                <div className="payment-methods">
+                  <span>Delivery: {payState.supermarket.onlineOrdering ? 'Available' : 'Pickup only'}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
       </div>
     </div>
   );
