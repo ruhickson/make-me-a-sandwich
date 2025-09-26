@@ -10,7 +10,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-2) 100%);
   padding: 20px;
 }
 
@@ -165,7 +165,7 @@
 }
 
 .logo-button {
-  background: rgba(255, 255, 255, 0.9);
+  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-2) 100%);
   border: none;
   border-radius: 50%;
   width: 60px;
@@ -174,14 +174,14 @@
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 4px 20px rgba(76, 175, 107, 0.3);
   backdrop-filter: saturate(180%) blur(20px);
   transition: all 0.2s ease;
 }
 
 .logo-button:hover {
   transform: scale(1.05);
-  box-shadow: 0 6px 25px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 6px 25px rgba(76, 175, 107, 0.4);
 }
 
 .logo-icon {
@@ -220,13 +220,13 @@
 }
 
 .nav-item:hover {
-  background: rgba(102, 126, 234, 0.1);
-  color: #667eea;
+  background: rgba(76, 175, 107, 0.1);
+  color: var(--accent);
 }
 
 .nav-item.active {
-  color: #667eea;
-  background: rgba(102, 126, 234, 0.1);
+  color: var(--accent);
+  background: rgba(76, 175, 107, 0.1);
 }
 
 .nav-icon {
@@ -558,6 +558,362 @@
 
 .meal-card-snacks:not([style*="background-image"]) {
   background: linear-gradient(135deg, #d299c2 0%, #fef9d7 100%);
+}
+
+/* Add to Shopping List Button */
+.add-to-shopping-container {
+  margin-top: 30px;
+  display: flex;
+  justify-content: center;
+}
+
+.add-to-shopping-btn {
+  background: var(--accent);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  padding: 16px 32px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: var(--shadow);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.add-to-shopping-btn:hover {
+  background: var(--accent-2);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(76, 175, 107, 0.4);
+}
+
+/* Settings Screen Styles */
+.settings-screen {
+  padding: 20px;
+  background: var(--bg-1);
+  min-height: calc(100vh - 140px);
+}
+
+.settings-header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.settings-header h1 {
+  margin: 0 0 8px 0;
+  font-size: 2rem;
+  color: var(--text-1);
+}
+
+.settings-header p {
+  margin: 0;
+  color: var(--text-2);
+  font-size: 1rem;
+}
+
+.settings-section {
+  margin-bottom: 30px;
+}
+
+.settings-section h2 {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: var(--text-1);
+  margin: 0 0 12px 0;
+  padding-left: 4px;
+}
+
+.settings-group {
+  background: white;
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+
+.setting-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.setting-item:last-child {
+  border-bottom: none;
+}
+
+.setting-item:hover {
+  background: var(--bg-2);
+}
+
+.setting-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+}
+
+.setting-icon {
+  font-size: 1.5rem;
+  width: 24px;
+  text-align: center;
+}
+
+.setting-text h3 {
+  margin: 0 0 2px 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-1);
+}
+
+.setting-text p {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--text-2);
+}
+
+.setting-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.chevron {
+  color: var(--text-2);
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+
+/* Toggle Switch */
+.toggle-switch {
+  position: relative;
+  display: inline-block;
+  width: 44px;
+  height: 24px;
+}
+
+.toggle-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.toggle-slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  transition: 0.3s;
+  border-radius: 24px;
+}
+
+.toggle-slider:before {
+  position: absolute;
+  content: "";
+  height: 18px;
+  width: 18px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  transition: 0.3s;
+  border-radius: 50%;
+}
+
+.toggle-switch input:checked + .toggle-slider {
+  background-color: var(--accent);
+}
+
+.toggle-switch input:checked + .toggle-slider:before {
+  transform: translateX(20px);
+}
+
+/* Unit Select */
+.unit-select {
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 4px 8px;
+  font-size: 0.9rem;
+  color: var(--text-1);
+  cursor: pointer;
+}
+
+/* Settings Modals */
+.settings-modal {
+  max-width: 500px;
+  width: 90%;
+}
+
+.settings-modal .modal-body {
+  padding: 20px;
+}
+
+.form-group {
+  margin-bottom: 16px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: 600;
+  color: var(--text-1);
+  font-size: 0.9rem;
+}
+
+.form-group input,
+.form-group select {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 1rem;
+  background: white;
+  color: var(--text-1);
+}
+
+.form-group input:focus,
+.form-group select:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px rgba(76, 175, 107, 0.2);
+}
+
+.privacy-info {
+  margin-top: 20px;
+  padding: 12px;
+  background: var(--bg-2);
+  border-radius: 8px;
+  border-left: 3px solid var(--accent);
+}
+
+.privacy-info p {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--text-2);
+  line-height: 1.4;
+}
+
+/* About Us Modal Styles */
+.about-content {
+  padding: 0;
+}
+
+.company-info {
+  text-align: center;
+  margin-bottom: 24px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--border);
+}
+
+.company-info h3 {
+  margin: 0 0 8px 0;
+  font-size: 1.5rem;
+  color: var(--text-1);
+}
+
+.company-info p {
+  margin: 0;
+  color: var(--text-2);
+  line-height: 1.5;
+}
+
+.leadership-section {
+  margin-bottom: 24px;
+}
+
+.leadership-section h4 {
+  margin: 0 0 16px 0;
+  font-size: 1.1rem;
+  color: var(--text-1);
+  font-weight: 600;
+}
+
+.team-member {
+  margin-bottom: 16px;
+  padding: 12px;
+  background: var(--bg-2);
+  border-radius: 8px;
+  border-left: 3px solid var(--accent);
+}
+
+.member-info h5 {
+  margin: 0 0 4px 0;
+  font-size: 1rem;
+  color: var(--text-1);
+  font-weight: 600;
+}
+
+.member-info .role {
+  margin: 0 0 6px 0;
+  font-size: 0.9rem;
+  color: var(--accent);
+  font-weight: 500;
+}
+
+.member-info .description {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--text-2);
+  line-height: 1.4;
+}
+
+.company-mission {
+  margin-bottom: 24px;
+  padding: 16px;
+  background: var(--bg-2);
+  border-radius: 8px;
+}
+
+.company-mission h4 {
+  margin: 0 0 8px 0;
+  font-size: 1.1rem;
+  color: var(--text-1);
+  font-weight: 600;
+}
+
+.company-mission p {
+  margin: 0;
+  color: var(--text-2);
+  line-height: 1.5;
+  font-size: 0.9rem;
+}
+
+.contact-info {
+  text-align: center;
+}
+
+.contact-info h4 {
+  margin: 0 0 8px 0;
+  font-size: 1.1rem;
+  color: var(--text-1);
+  font-weight: 600;
+}
+
+.contact-info p {
+  margin: 0 0 12px 0;
+  color: var(--text-2);
+  font-size: 0.9rem;
+}
+
+.contact-methods {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.contact-methods span {
+  font-size: 0.9rem;
+  color: var(--text-1);
+  padding: 8px 12px;
+  background: var(--bg-2);
+  border-radius: 6px;
 }
 
 /* Swipeable Meal Types */

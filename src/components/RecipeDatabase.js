@@ -296,174 +296,152 @@ const RecipeDatabase = () => {
         <div className="database-header">
           <h1>📚 Recipe Database</h1>
           <p>Browse and select recipes from BBC Good Food</p>
-          <p><strong>Over 60,000 recipes available.</strong> Here are 10 random picks:</p>
+          <p><strong>Over 60,000 recipes available.</strong></p>
         </div>
 
-        {featuredRecipes.length > 0 && (
-          <div className="recipes-featured-grid">
-            {featuredRecipes.map((recipe, index) => (
-              <div 
-                key={`featured-${index}`}
-                className="recipe-card"
-              >
-                <div className="recipe-image">
-                  {recipe.image ? (
-                    <img src={recipe.image} alt={recipe.name} />
-                  ) : (
-                    <div className="placeholder-image">🍽️</div>
-                  )}
-                </div>
-                <div className="recipe-content">
-                  <h3>{recipe.name}</h3>
-                  <p className="recipe-description">{recipe.description}</p>
-                </div>
+        {/* Search and Filters at the Top */}
+        <div className="database-controls">
+          <div className="search-filter">
+            <input
+              type="text"
+              placeholder="Search recipes..."
+              value={filter}
+              onChange={(e) => setFilter(e.target.value)}
+              className="search-input"
+            />
+          </div>
+
+          <div className="category-filter">
+            <select
+              value={category}
+              onChange={(e) => setCategory(e.target.value)}
+              className="category-select"
+            >
+              {categories.map(cat => (
+                <option key={cat} value={cat}>
+                  {cat.charAt(0).toUpperCase() + cat.slice(1)} ({recipes.filter(r => cat === 'all' || getRecipeCategory(r) === cat).length})
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="advanced-filters-toggle">
+            <button 
+              className="btn btn-secondary"
+              onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
+            >
+              {showAdvancedFilters ? 'Hide' : 'Show'} Advanced Filters
+            </button>
+          </div>
+        </div>
+
+        {showAdvancedFilters && (
+          <div className="advanced-filters">
+            <div className="filter-row">
+              <div className="filter-group">
+                <label>Dietary Restrictions:</label>
+                <select
+                  value={advancedFilters.dietary}
+                  onChange={(e) => setAdvancedFilters({...advancedFilters, dietary: e.target.value})}
+                >
+                  <option value="">Any</option>
+                  <option value="vegetarian">Vegetarian</option>
+                  <option value="vegan">Vegan</option>
+                  <option value="gluten-free">Gluten-Free</option>
+                  <option value="dairy-free">Dairy-Free</option>
+                </select>
               </div>
-            ))}
+
+              <div className="filter-group">
+                <label>Max Cooking Time:</label>
+                <select
+                  value={advancedFilters.maxCookingTime}
+                  onChange={(e) => setAdvancedFilters({...advancedFilters, maxCookingTime: e.target.value})}
+                >
+                  <option value="">Any</option>
+                  <option value="15">15 minutes</option>
+                  <option value="30">30 minutes</option>
+                  <option value="45">45 minutes</option>
+                  <option value="60">1 hour</option>
+                  <option value="90">1.5 hours</option>
+                  <option value="120">2 hours</option>
+                </select>
+              </div>
+
+              <div className="filter-group">
+                <label>Difficulty:</label>
+                <select
+                  value={advancedFilters.difficulty}
+                  onChange={(e) => setAdvancedFilters({...advancedFilters, difficulty: e.target.value})}
+                >
+                  <option value="">Any</option>
+                  <option value="easy">Easy</option>
+                  <option value="medium">Medium</option>
+                  <option value="hard">Hard</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="filter-row">
+              <div className="filter-group">
+                <label>Max Calories:</label>
+                <select
+                  value={advancedFilters.maxCalories}
+                  onChange={(e) => setAdvancedFilters({...advancedFilters, maxCalories: e.target.value})}
+                >
+                  <option value="">Any</option>
+                  <option value="300">300 kcal</option>
+                  <option value="400">400 kcal</option>
+                  <option value="500">500 kcal</option>
+                  <option value="600">600 kcal</option>
+                  <option value="800">800 kcal</option>
+                </select>
+              </div>
+
+              <div className="filter-group">
+                <label>Max Ingredients:</label>
+                <select
+                  value={advancedFilters.maxIngredients}
+                  onChange={(e) => setAdvancedFilters({...advancedFilters, maxIngredients: e.target.value})}
+                >
+                  <option value="">Any</option>
+                  <option value="5">5 ingredients</option>
+                  <option value="8">8 ingredients</option>
+                  <option value="10">10 ingredients</option>
+                  <option value="12">12 ingredients</option>
+                </select>
+              </div>
+            </div>
           </div>
         )}
 
-                 <div className="database-controls">
-           <div className="search-filter">
-             <input
-               type="text"
-               placeholder="Search recipes..."
-               value={filter}
-               onChange={(e) => setFilter(e.target.value)}
-               className="search-input"
-             />
-           </div>
+        {featuredRecipes.length > 0 && (
+          <div className="featured-section">
+            <h3>Featured Recipes</h3>
+            <div className="recipes-featured-grid">
+              {featuredRecipes.map((recipe, index) => (
+                <div 
+                  key={`featured-${index}`}
+                  className="recipe-card"
+                >
+                  <div className="recipe-image">
+                    {recipe.image ? (
+                      <img src={recipe.image} alt={recipe.name} />
+                    ) : (
+                      <div className="placeholder-image">🍽️</div>
+                    )}
+                  </div>
+                  <div className="recipe-content">
+                    <h3>{recipe.name}</h3>
+                    <p className="recipe-description">{recipe.description}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
-           <div className="category-filter">
-             <select
-               value={category}
-               onChange={(e) => setCategory(e.target.value)}
-               className="category-select"
-             >
-               {categories.map(cat => (
-                 <option key={cat} value={cat}>
-                   {cat.charAt(0).toUpperCase() + cat.slice(1)} ({recipes.filter(r => cat === 'all' || getRecipeCategory(r) === cat).length})
-                 </option>
-               ))}
-             </select>
-           </div>
 
-           <div className="advanced-filters-toggle">
-             <button 
-               className="btn btn-secondary"
-               onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
-             >
-               {showAdvancedFilters ? 'Hide' : 'Show'} Advanced Filters
-             </button>
-           </div>
-
-           <div className="selection-info">
-             <span>{selectedRecipes.length} recipes selected</span>
-             <button 
-               className="btn btn-primary"
-               onClick={generateMealPlan}
-               disabled={selectedRecipes.length === 0}
-             >
-               Generate Meal Plan
-             </button>
-           </div>
-         </div>
-
-         {showAdvancedFilters && (
-           <div className="advanced-filters">
-             <div className="filter-row">
-               <div className="filter-group">
-                 <label>Dietary Restrictions:</label>
-                 <select
-                   value={advancedFilters.dietary}
-                   onChange={(e) => setAdvancedFilters({...advancedFilters, dietary: e.target.value})}
-                 >
-                   <option value="">Any</option>
-                   <option value="vegetarian">Vegetarian</option>
-                   <option value="vegan">Vegan</option>
-                   <option value="gluten-free">Gluten-Free</option>
-                   <option value="dairy-free">Dairy-Free</option>
-                 </select>
-               </div>
-
-               <div className="filter-group">
-                 <label>Max Cooking Time:</label>
-                 <select
-                   value={advancedFilters.maxCookingTime}
-                   onChange={(e) => setAdvancedFilters({...advancedFilters, maxCookingTime: e.target.value})}
-                 >
-                   <option value="">Any</option>
-                   <option value="15">15 minutes</option>
-                   <option value="30">30 minutes</option>
-                   <option value="45">45 minutes</option>
-                   <option value="60">1 hour</option>
-                   <option value="90">1.5 hours</option>
-                   <option value="120">2 hours</option>
-                 </select>
-               </div>
-
-               <div className="filter-group">
-                 <label>Difficulty:</label>
-                 <select
-                   value={advancedFilters.difficulty}
-                   onChange={(e) => setAdvancedFilters({...advancedFilters, difficulty: e.target.value})}
-                 >
-                   <option value="">Any</option>
-                   <option value="easy">Easy</option>
-                   <option value="medium">Medium</option>
-                   <option value="hard">Hard</option>
-                 </select>
-               </div>
-             </div>
-
-             <div className="filter-row">
-               <div className="filter-group">
-                 <label>Max Calories:</label>
-                 <select
-                   value={advancedFilters.maxCalories}
-                   onChange={(e) => setAdvancedFilters({...advancedFilters, maxCalories: e.target.value})}
-                 >
-                   <option value="">Any</option>
-                   <option value="200">200 kcal</option>
-                   <option value="300">300 kcal</option>
-                   <option value="400">400 kcal</option>
-                   <option value="500">500 kcal</option>
-                   <option value="600">600 kcal</option>
-                   <option value="800">800 kcal</option>
-                 </select>
-               </div>
-
-               <div className="filter-group">
-                 <label>Max Ingredients:</label>
-                 <select
-                   value={advancedFilters.maxIngredients}
-                   onChange={(e) => setAdvancedFilters({...advancedFilters, maxIngredients: e.target.value})}
-                 >
-                   <option value="">Any</option>
-                   <option value="5">5 ingredients</option>
-                   <option value="8">8 ingredients</option>
-                   <option value="10">10 ingredients</option>
-                   <option value="12">12 ingredients</option>
-                   <option value="15">15 ingredients</option>
-                 </select>
-               </div>
-
-               <div className="filter-group">
-                 <button 
-                   className="btn btn-secondary"
-                   onClick={() => setAdvancedFilters({
-                     dietary: '',
-                     maxCookingTime: '',
-                     difficulty: '',
-                     maxCalories: '',
-                     maxIngredients: ''
-                   })}
-                 >
-                   Clear Filters
-                 </button>
-               </div>
-             </div>
-           </div>
-         )}
 
         {recipes.length === 0 ? (
           <div className="no-recipes">

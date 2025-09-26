@@ -758,6 +758,16 @@ const MealPlanScreen = ({ onViewShopping }) => {
           })}
         </div>
 
+        {/* Add to Shopping List Button */}
+        <div className="add-to-shopping-container">
+          <button 
+            className="add-to-shopping-btn"
+            onClick={() => onScreenChange('shopping-list')}
+          >
+            🛒 Add to Shopping List
+          </button>
+        </div>
+
       {/* Recipe Modal */}
       {showRecipeModal && selectedRecipe && (
         <div className="modal-overlay" onClick={closeRecipeModal}>
